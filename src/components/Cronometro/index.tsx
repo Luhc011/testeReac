@@ -8,15 +8,26 @@ import Botao from "../Botao";
 
 interface Props {
   selecionado: ITarefa | undefined;
+  finalizarTarefa: () => void;
 }
 
-export default function Cronometro({ selecionado }: Props) {
+export default function Cronometro({ selecionado, finalizarTarefa }: Props) {
   const [tempo, setTempo] = useState<number>();
   useEffect(() => {
     if (selecionado?.tempo) {
       setTempo(tempoParaSegundos(selecionado.tempo));
     }
-  });
+  }, [selecionado]);
+
+  function regressiva(contador: number = 0) {
+    setTimeout(() => {
+      if (contador >= 0) {
+        setTempo(contador--);
+        return regressiva(contador--);
+      }
+      finalizarTarefa();
+    }, 1000);
+  }
 
   return (
     <div className={style.cronometro}>
@@ -24,7 +35,7 @@ export default function Cronometro({ selecionado }: Props) {
       <div className={style.relogioWrapper}>
         <Relogio tempo={tempo} />
       </div>
-      <Botao>Iniciar</Botao>
+      <Botao onClick={() => regressiva(tempo)}>Iniciar</Botao>
     </div>
   );
 }
